@@ -1,0 +1,21 @@
+Io.print("Function definiation")
+double := |Num x -> Num| { return Math.mult(x, 2) }
+Io.print(double(5))
+
+Io.print("Function with a closure")
+closure := |Num x -> Func| {
+	return |Num x -> Num| {return Math.add(1, x)}
+}
+addOneFunc := closure(1)
+Io.print(addOneFunc(1))
+
+Io.print("Global vs Local scope")
+x := 1
+Io.print(x)
+localScope := |-> Any| {
+	x := 2
+	Io.print(x)
+	return 1;
+}
+localScope()
+Io.print(x)

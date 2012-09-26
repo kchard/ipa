@@ -1,0 +1,97 @@
+<project name="MyProject" default="dist" basedir=".">
+
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="src.main" location="${src}/main" />
+	<property name="src.test" location="${src}/test" />
+	<property name="main.build" location="build" />
+	<property name="test.build" location="test-build" />
+	<property name="test.report" location="test-report" />
+	<property name="lib" location="lib" />
+	<property name="dist" location="dist" />
+
+	<target name="init">
+		<mkdir dir="${main.build}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<javac srcdir="${src.main}" destdir="${main.build}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="dist" depends="test" description="generate the distribution">
+		<mkdir dir="${dist}/lib" />
+		<jar jarfile="${dist}/ipa.jar" basedir="${main.build}">
+			<manifest>
+				<attribute name="Main-Class" value="com.kevinchard.ipa.lang.Ipa" />
+				<attribute name="Class-Path" value="lib/antlr-3.4.jar" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="package" depends="dist" description="package the jar with dependencies">
+		<copy file="${lib}/antlr-3.4.jar" todir="${dist}/lib" />
+		<tar destfile="${dist}/ipa.tar" basedir="${dist}" />
+		<gzip destfile="${dist}/ipa.tar.gz" src="${dist}/ipa.tar" />
+	</target>
+
+	<target name="test-init" depends="compile">
+		<mkdir dir="${test.build}" />
+		<mkdir dir="${test.report}" />
+	</target>
+
+	<target name="test-compile" depends="test-init" description="compile the source ">
+		<javac srcdir="${src.test}" destdir="${test.build}">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<dirset dir="${main.build}">
+					<include name="**" />
+				</dirset>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="test" depends="test-compile" description="run tests">
+		<junit printsummary="yes" haltonfailure="false" failureproperty="failed">
+			<classpath>
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+				</fileset>
+				<dirset dir="${main.build}">
+					<include name="**" />
+				</dirset>
+				<dirset dir="${test.build}">
+					<include name="**" />
+				</dirset>
+
+			</classpath>
+
+			<formatter type="xml" />
+
+			<batchtest fork="yes" todir="${test.report}">
+				<fileset dir="${src.test}">
+					<include name="**/*Test*.java" />
+					<exclude name="**/Base*Test*.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<fail message="JUnit tests FAILED" if="failed" />
+
+	</target>
+
+	<target name="clean" description="clean up">
+		<delete dir="${main.build}" />
+		<delete dir="${test.build}" />
+		<delete dir="${test.report}" />
+		<delete dir="${dist}" />
+	</target>
+
+</project>

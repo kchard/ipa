@@ -1,0 +1,2 @@
+MyMod.const := 1
+MyMod.triple := |Num x -> Num | {return Math.mult(3, x)}

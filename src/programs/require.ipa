@@ -1,0 +1,4 @@
+Io.require("C:\dev\workspaces\lang\ipa\src\programs\module.ipa")
+
+Io.print(MyMod.const)
+Io.print(MyMod.triple(3))
